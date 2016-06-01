@@ -30,8 +30,8 @@ function getSeenNodes(cb) {
 
 var hackyList = document.createElement('ul');
 var clickventureMap = document.getElementById('map');
-clickventureMap.hidden = true;
 clickventureMap.parentElement.appendChild(hackyList);
+clickventureMap.remove();
 
 var activeNode;
 function setActiveNode(id) {
