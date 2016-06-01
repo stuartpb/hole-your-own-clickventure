@@ -59,7 +59,7 @@ function createNodeLine(node) {
   nodeLines.set(nodeId, nodeLine);
   nodeLine.textContent = nodeId+': '+nodeLinks.join(', ');
   nodeLine.hidden = seenNodes.has(nodeId);
-  nodeLine.addEventListener(function (evt) {
+  nodeLine.addEventListener('click', function (evt) {
     goToNode(nodeId);
   });
   hackyList.appendChild(nodeLine);
