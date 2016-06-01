@@ -1,4 +1,4 @@
-/* global chrome clickventureNameToUrl */
+/* global chrome clickventureUrlToName */
 
 // When the extension is installed or upgraded ...
 chrome.runtime.onInstalled.addListener(function() {
@@ -24,7 +24,7 @@ chrome.runtime.onInstalled.addListener(function() {
 	});
 
 function recordSeen(clickventureUrl, nodeId) {
-  var clickventureName =
+  var clickventureName = clickventureUrlToName(clickventureUrl);
   chrome.storage.sync.get({clickventures:{}}, function(storeData) {
 
   var seenNodes = (storeData.clickventures[clickventureName] =
