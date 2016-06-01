@@ -47,9 +47,11 @@ var activeNodeObserver = new MutationObserver(function(records) {
 observeClass('clickventure-node', activeNodeObserver, {attributes: true});
 
 function assessLayout() {
-  var layout = {};
+  var layout = {
+    nodes: []
+  };
   var nodes = document.getElementsByClassName('clickventure-node');
-  var layoutNodes = [];
+  var layoutNodes = layout.nodes;
   for (var i = 0; i < nodes.length; i++) {
     var node = nodes[i];
     if (node.classList.contains('clickventure-node-start')) {
