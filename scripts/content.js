@@ -21,12 +21,12 @@ function observeClass(className, observer, options) {
 
 function reportNewActiveNode(target) {
   chrome.runtime.sendMessage(null, {
-    type: 'action', target: target.dataSet.nodeId});
+    type: 'action', target: target.dataset.nodeId});
 }
 
 addClassListener('clickventure-node-link', 'mouseenter', function(evt) {
   chrome.runtime.sendMessage(null, {
-    type: 'hover', target: evt.target.dataSet.targetNode});
+    type: 'hover', target: evt.target.dataset.targetNode});
 });
 
 addClassListener('clickventure-node-link', 'mouseleave', function(evt) {
@@ -53,24 +53,24 @@ function assessLayout() {
   for (var i = 0; i < nodes.length; i++) {
     var node = nodes[i];
     if (node.classList.contains('clickventure-node-start')) {
-      layout.start = node.dataSet.nodeId;
+      layout.start = node.dataset.nodeId;
     }
     // Include initial active node
     if (node.classList.contains('clickventure-node-start')) {
-      layout.active = node.dataSet.nodeId;
+      layout.active = node.dataset.nodeId;
     }
     var outboundNodes = [];
     var nodeLinks = node.getElementsByClassName('clickventure-node-link');
     for (var j = 0; j < nodeLinks.length; j++) {
-      var targetId = nodeLinks[i].dataSet.targetNode;
+      var targetId = nodeLinks[i].dataset.targetNode;
       if (outboundNodes.indexOf(targetId) == -1) {
         outboundNodes[outboundNodes.length] = targetId;
       }
     }
     outboundNodes.sort();
     layoutNodes[i] = {
-      id: node.dataSet.nodeId,
-      name: node.dataSet.nodeName,
+      id: node.dataset.nodeId,
+      name: node.dataset.nodeName,
       links: outboundNodes,
       finish: node.classList.contains('clickventure-node-finish')
     };
