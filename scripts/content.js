@@ -80,4 +80,8 @@ function assessLayout() {
   return layout;
 }
 
-chrome.runtime.sendMessage(null, {type: 'layout', layout: assessLayout()});
+chrome.runtime.onMessage.addListener(function(msg, sender, respond) {
+  if (msg.type == 'layout') {
+    respond(assessLayout());
+  }
+});

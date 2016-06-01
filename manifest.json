@@ -19,6 +19,12 @@
     "scripts": [ "lib/clickventure.js", "scripts/background.js" ],
     "persistent": false
   },
+  "content_scripts": [
+    {
+      "matches": ["*://www.clickhole.com/clickventure/*"],
+      "js": ["scripts/content.js"]
+    }
+  ],
   "homepage_url": "https://github.com/stuartpb/hole-your-own-clickventure",
   "permissions": [
     "storage",

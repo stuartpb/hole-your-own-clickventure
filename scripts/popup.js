@@ -118,12 +118,10 @@ chrome.runtime.onMessage.addListener(function onMessageCallback(msg, sender) {
     unsetHoveredLink();
   } else if (msg.type == 'action') {
     setActiveNode(msg.target);
-  } else if (msg.type == 'layout') {
-    populateLayout(msg.layout);
   }
 });
 
-chrome.tabs.executeScript(null, {file: 'scripts/content.js'});
+chrome.tabs.sendMessage(null, {type: "layout"}, populateLayout);
 getSeenNodes(function(seenNodeList) {
   for (var i = 0; i < seenNodeList.length; i++) {
     markNodeAsSeen(seenNodeList[i]);
