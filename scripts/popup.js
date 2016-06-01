@@ -121,7 +121,9 @@ chrome.runtime.onMessage.addListener(function onMessageCallback(msg, sender) {
   }
 });
 
-chrome.tabs.sendMessage(null, {type: "layout"}, populateLayout);
+chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+  chrome.tabs.sendMessage(tabs[0].id, {type: "layout"}, populateLayout);
+});
 getSeenNodes(function(seenNodeList) {
   for (var i = 0; i < seenNodeList.length; i++) {
     markNodeAsSeen(seenNodeList[i]);
