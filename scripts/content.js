@@ -58,7 +58,7 @@ function assessLayout() {
       layout.start = node.dataset.nodeId;
     }
     // Include initial active node
-    if (node.classList.contains('clickventure-node-start')) {
+    if (node.classList.contains('clickventure-node-active')) {
       layout.active = node.dataset.nodeId;
     }
     var outboundNodes = [];
