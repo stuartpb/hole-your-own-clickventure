@@ -58,7 +58,7 @@ function createNodeLine(node) {
   var nodeLine = document.createElement('li');
   nodeLines.set(nodeId, nodeLine);
   nodeLine.textContent = nodeId+': '+nodeLinks.join(', ');
-  nodeLine.hidden = seenNodes.has(nodeId);
+  nodeLine.hidden = !seenNodes.has(nodeId);
   nodeLine.addEventListener('click', function (evt) {
     goToNode(nodeId);
   });
