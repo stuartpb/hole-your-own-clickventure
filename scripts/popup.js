@@ -22,7 +22,7 @@ function getSeenNodes(cb) {
     clickventureName = clickventureUrlToName(url);
     if (storedClickventures) return returnSeenNodes();
   });
-  chrome.storage.get({clickventures:{}}, function(storeData) {
+  chrome.storage.sync.get({clickventures:{}}, function(storeData) {
     storedClickventures = storeData.clickventures;
     if (clickventureName) return returnSeenNodes();
   });

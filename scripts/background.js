@@ -25,7 +25,7 @@ chrome.runtime.onInstalled.addListener(function() {
 
 function recordSeen(clickventureUrl, nodeId) {
   var clickventureName =
-  chrome.storage.get({clickventures:{}}, function(storeData) {
+  chrome.storage.sync.get({clickventures:{}}, function(storeData) {
 
   var seenNodes = (storeData.clickventures[clickventureName] =
     storeData.clickventures[clickventureName] || {seenNodes: []}).seenNodes;
@@ -33,7 +33,7 @@ function recordSeen(clickventureUrl, nodeId) {
     if (seenNodes.indexOf(nodeId) == -1) {
       seenNodes[seenNodes.length] = nodeId;
       seenNodes.sort();
-      chrome.storage.set(storeData);
+      chrome.storage.sync.set(storeData);
     }
   });
 }
