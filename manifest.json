@@ -23,6 +23,7 @@
   "permissions": [
     "storage",
     "declarativeContent",
+    "activeTab",
     "*://www.clickhole.com/clickventure/*"
   ]
 }
