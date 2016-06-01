@@ -1,0 +1,131 @@
+/* global chrome clickventureUrlToName */
+
+var layout;
+
+var seenNodes = new Set();
+var nodeLines = new Map();
+
+function getCurrentUrl(cb) {
+  return chrome.tabs.query({active: true, currentWindow: true},
+    function(tabs) {
+      return cb(tabs[0].url);
+    });
+}
+
+function getSeenNodes(cb) {
+  var clickventureName, storedClickventures;
+  function returnSeenNodes() {
+    var clickventure = storedClickventures[clickventureName];
+    return cb(clickventure ? clickventure.seenNodes : []);
+  }
+  getCurrentUrl(function(url) {
+    clickventureName = clickventureUrlToName(url);
+    if (storedClickventures) return returnSeenNodes();
+  });
+  chrome.storage.get({clickventures:{}}, function(storeData) {
+    storedClickventures = storeData.clickventures;
+    if (clickventureName) return returnSeenNodes();
+  });
+}
+
+var hackyList = document.createElement('ul');
+var clickventureMap = document.getElementById('map');
+clickventureMap.hidden = true;
+clickventureMap.parentElement.appendChild(hackyList);
+
+var activeNode;
+function setActiveNode(id) {
+  // deactivate old active node
+  nodeLines.get(activeNode).classList.remove('active');
+  // activate new active node
+  nodeLines.get(id).classList.add('active');
+  markNodeAsSeen(id);
+  activeNode = id;
+}
+
+function goToNode(id) {
+  return getCurrentUrl(function(url) {
+    var targetUrl = url.replace(/#.*$/,'') + '#' + id;
+    chrome.tabs.update(null, {url: targetUrl}, function() {
+      setActiveNode(id);
+    });
+  });
+}
+
+function createNodeLine(node) {
+  var nodeId = node.id;
+  var nodeLinks = node.links;
+  var nodeLine = document.createElement('li');
+  nodeLines.set(nodeId, nodeLine);
+  nodeLine.textContent = nodeId+': '+nodeLinks.join(', ');
+  nodeLine.hidden = seenNodes.has(nodeId);
+  nodeLine.addEventListener(function (evt) {
+    goToNode(nodeId);
+  });
+  hackyList.appendChild(nodeLine);
+}
+
+function populateLayout(layoutObj) {
+  layout = layoutObj;
+  for (var i = 0; i < layout.nodes.length; i++) {
+    createNodeLine(layout.nodes[i]);
+  }
+  // Initialize activeNode
+  activeNode = layout.start;
+  setActiveNode(layout.active);
+}
+
+function markNodeAsSeen(id) {
+  seenNodes.add(id);
+  if (layout) {
+    nodeLines.get(id).hidden = false;
+  }
+}
+
+function spoilNodes() {
+  for (var i = 0; i < layout.nodes.length; i++) {
+    markNodeAsSeen(layout.nodes[i].id);
+  }
+}
+
+function resetNodes() {
+  seenNodes.clear();
+  for (var i = 0; i < layout.nodes.length; i++) {
+    nodeLines.get(layout.nodes[i].id).hidden = true;
+  }
+  goToNode(layout.start);
+  // TODO: persist reset
+}
+
+document.getElementById('spoil').addEventListener('click', spoilNodes);
+document.getElementById('reset').addEventListener('click', resetNodes);
+
+function setHoveredLink(id) {
+  var activeNodeLine = nodeLines.get(activeNode);
+  activeNodeLine.textContent = activeNodeLine.textContent.replace(
+    new RegExp(id+'(?:, |$)'), '>$&');
+}
+
+function unsetHoveredLink() {
+  var activeNodeLine = nodeLines.get(activeNode);
+  activeNodeLine.textContent = activeNodeLine.textContent.replace(/>/,'');
+}
+
+chrome.runtime.onMessage.addListener(function onMessageCallback(msg, sender) {
+  if (msg.type == 'hover') {
+    setHoveredLink(msg.target);
+  } else if (msg.type == 'unhover') {
+    unsetHoveredLink();
+  } else if (msg.type == 'action') {
+    setActiveNode(msg.target);
+  } else if (msg.type == 'layout') {
+    populateLayout(msg.layout);
+  }
+});
+
+chrome.tabs.executeScript(null, {file: 'scripts/content.js'});
+getSeenNodes(function(seenNodeList) {
+  for (var i = 0; i < seenNodeList.length; i++) {
+    markNodeAsSeen(seenNodeList[i]);
+  }
+});
