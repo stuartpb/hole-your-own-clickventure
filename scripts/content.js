@@ -62,7 +62,7 @@ function assessLayout() {
     var outboundNodes = [];
     var nodeLinks = node.getElementsByClassName('clickventure-node-link');
     for (var j = 0; j < nodeLinks.length; j++) {
-      var targetId = nodeLinks[i].dataset.targetNode;
+      var targetId = nodeLinks[j].dataset.targetNode;
       if (outboundNodes.indexOf(targetId) == -1) {
         outboundNodes[outboundNodes.length] = targetId;
       }
