@@ -47,7 +47,9 @@ function goToNode(id) {
   return getCurrentUrl(function(url) {
     var targetUrl = url.replace(/#.*$/,'') + '#' + id;
     chrome.tabs.update(null, {url: targetUrl}, function() {
-      setActiveNode(id);
+      // because clickventure fails to recognize hash changes,
+      // we have to outright reload after navigating
+      chrome.tabs.reload(null, setActiveNode.bind(null,id));
     });
   });
 }
