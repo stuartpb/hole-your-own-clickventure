@@ -88,6 +88,7 @@ function goToNode(id) {
 }
 
 var nodeRadius = 10;
+var nodeBounds = 30;
 
 var teNodeGroup = cre.svg('g.node-group');
 var teNodeLinkGroup = cre.svg('g.node-links');
@@ -101,7 +102,7 @@ var teNodeLink = cre.svg('path.link');
 
 function newGraphLayoutNode() {
   return graphLayoutNodes[graphLayoutNodes.length] =
-    {height: nodeRadius, width: nodeRadius};
+    {height: nodeBounds, width: nodeBounds};
 }
 
 function createNodeElements(i) {
