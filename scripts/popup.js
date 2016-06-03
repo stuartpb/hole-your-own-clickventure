@@ -83,7 +83,7 @@ function goToNode(id) {
   });
 }
 
-var nodeRadius = 5;
+var nodeRadius = 10;
 
 var teNodeGroup = cre.svg('g.node-group');
 var teNodeLinkGroup = cre.svg('g.node-links');
@@ -175,7 +175,7 @@ function populateLayout(layoutObj) {
 
   var d3cola = cola.d3adaptor();
   d3cola.nodes(graphLayoutNodes).links(graphLinks)
-    .flowLayout('x', 15).start(10,20,20);
+    .flowLayout('x', 20).start(10,20,20);
 
   d3cola.on("tick", function () {
     mapLinks.attr('d', function (d) {
