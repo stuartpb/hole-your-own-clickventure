@@ -1,9 +1,51 @@
-/* global chrome clickventureUrlToName */
+/* global chrome clickventureUrlToName cre d3 cola */
 
 var layout;
 
+// graph info for cola layout
+var graphLinks = [];
+// list of nodes for cola layout
+var graphLayoutNodes = [];
+// list of nodes for d3 binding
+// (the list of layout nodes, without the intermediates)
+var graphPlottedNodes;
+// array of references for plotting link paths (d3 binding)
+var bilinks = [];
+
+// list of node marker elements for d3
+var nodeMarkerList = [];
+// list of link path elements for d3
+var nodeLinkList = [];
+
 var seenNodes = new Set();
-var nodeLines = new Map();
+
+// this is a "map" in the sense of a navigational aid
+var clickventureMap = document.getElementById('map');
+// this is a "map" in the sense of a data structure
+var nodeElementsMap = new Map();
+
+var activeNode;
+function setActiveNode(id) {
+  // deactivate old active node
+  nodeElementsMap.get(activeNode).group.classList.remove('active');
+  // activate new active node
+  nodeElementsMap.get(id).group.classList.add('active');
+  markNodeAsSeen(id);
+  activeNode = id;
+}
+
+function setHoveredLink(id) {
+  return nodeElementsMap.get(activeNode)
+    .linkMap.get(id).classList.add('hovered');
+}
+
+function unsetHoveredLink() {
+  var hovered = nodeElementsMap.get(activeNode)
+    .linkGroup.getElementsByClassName('hovered');
+  for (var i = 0; i < hovered.length; i++) {
+    hovered[i].classList.remove('hovered');
+  }
+}
 
 function getCurrentUrl(cb) {
   return chrome.tabs.query({active: true, currentWindow: true},
@@ -28,21 +70,6 @@ function getSeenNodes(cb) {
   });
 }
 
-var hackyList = document.createElement('ul');
-var clickventureMap = document.getElementById('map');
-clickventureMap.parentElement.appendChild(hackyList);
-clickventureMap.remove();
-
-var activeNode;
-function setActiveNode(id) {
-  // deactivate old active node
-  nodeLines.get(activeNode).classList.remove('active');
-  // activate new active node
-  nodeLines.get(id).classList.add('active');
-  markNodeAsSeen(id);
-  activeNode = id;
-}
-
 function goToNode(id) {
   return getCurrentUrl(function(url) {
     var targetUrl = url.replace(/#.*$/,'') + '#' + id;
@@ -54,34 +81,126 @@ function goToNode(id) {
   });
 }
 
-function createNodeLine(node) {
+var nodeRadius = 5;
+
+var teNodeGroup = cre.svg('g.node-group');
+var teNodeLinkGroup = cre.svg('g.node-links');
+var teNodeMarker = cre.svg('g.node');
+var teNodeTitleElement = cre.svg('title');
+var teNodeCircle = cre.svg('circle', {
+  attributes: [{name: 'r', value: nodeRadius}]
+});
+var teNodeLabel = cre.svg('text');
+var teNodeLink = cre.svg('path.link');
+
+function createNodeElements(i) {
+  var node = layout.nodes[i];
   var nodeId = node.id;
-  var nodeLinks = node.links;
-  var nodeLine = document.createElement('li');
-  nodeLines.set(nodeId, nodeLine);
-  nodeLine.textContent = nodeId+': '+nodeLinks.join(', ');
-  nodeLine.title = node.name;
-  nodeLine.hidden = !seenNodes.has(nodeId);
-  nodeLine.addEventListener('click', function (evt) {
+  var nodeMarker = cre(teNodeMarker, [
+    cre(teNodeTitleElement, [node.name]),
+    cre(teNodeCircle),
+    cre(teNodeLabel, [nodeId])
+  ]);
+  var nodeLinkGroup = cre(teNodeLinkGroup);
+  var nodeGroup = cre(teNodeGroup, [nodeMarker, nodeLinkGroup]);
+
+  nodeGroup.classList.add(seenNodes.has(node.id) ? 'seen' : 'unseen');
+
+  nodeMarker.addEventListener('click', function (evt) {
     goToNode(nodeId);
   });
-  hackyList.appendChild(nodeLine);
+
+  nodeMarkerList[nodeMarkerList.length] = nodeMarker;
+
+  return {
+    node: node,
+    graphNode: graphLayoutNodes[graphLayoutNodes.length] = {},
+    group: nodeGroup,
+    marker: nodeMarker,
+    linkGroup: nodeLinkGroup,
+    linkMap: new Map(),
+    index: i
+  };
+}
+
+function createNodeLinks(iSource) {
+  // create node link and append it to
+  var node = layout.nodes[iSource];
+  var links = node.links;
+  for (var i = 0; i < links.length; i++) {
+    var iTarget = nodeElementsMap.get(links[i]).index;
+    var bilink = [graphLayoutNodes[iSource], {}, graphLayoutNodes[iTarget]];
+    graphLinks.push(
+      {source: bilink[0], target: bilink[1]},
+      {source: bilink[1], target: bilink[2]});
+    bilinks[bilinks.length] = bilink;
+    var linkPath = cre(teNodeLink);
+    var nodeElements = nodeElementsMap.get(node.id);
+    nodeElements.linkGroup.appendChild(linkPath);
+    nodeElements.linkMap.set(links[i], linkPath);
+    nodeLinkList[nodeLinkList.length] = linkPath;
+  }
 }
 
 function populateLayout(layoutObj) {
+  // save incoming layout
   layout = layoutObj;
+
+  // initialize node elements
   for (var i = 0; i < layout.nodes.length; i++) {
-    createNodeLine(layout.nodes[i]);
+    nodeElementsMap.set(layout.nodes[i].id, createNodeElements(i));
   }
+
+  // slice nodes to plot for d3 binding
+  graphPlottedNodes = graphLayoutNodes.slice();
+
+  // set up links and append to tree
+  for (var i = 0; i < layout.nodes.length; i++) {
+    createNodeLinks(layout.nodes[i]);
+    clickventureMap.appendChild(nodeElementsMap.get(layout.nodes[i].id));
+  }
+
   // Initialize activeNode
   activeNode = layout.start;
   setActiveNode(layout.active);
+
+  // bind data for d3
+  var mapNodes = d3.selectAll(nodeMarkerList).data(graphPlottedNodes);
+  var mapLinks = d3.selectAll(nodeLinkList).data(bilinks);
+
+  var d3cola = cola.d3adaptor();
+  d3cola.nodes(graphLayoutNodes).links(graphLinks)
+    .flowLayout('x', 15).start(10,20,20);
+
+  d3cola.on("tick", function () {
+    mapLinks.attr('d', function (d) {
+      return "M" + d[0].x + "," + d[0].y
+          + "S" + d[1].x + "," + d[1].y
+          + " " + d[2].x + "," + d[2].y;
+    });
+
+    mapNodes.attr("transform",function(d){"translate("+d.x+','+d.y+")"});
+  });
 }
 
 function markNodeAsSeen(id) {
   seenNodes.add(id);
   if (layout) {
-    nodeLines.get(id).hidden = false;
+    var nodeElements = nodeElementsMap.get(id);
+    var nodeGroup = nodeElements.group;
+    nodeGroup.classList.remove('unseen');
+    nodeGroup.classList.remove('glimpsed');
+    nodeGroup.classList.add('seen');
+
+    // mark all targets as at least glimpsed
+    var links = nodeElements.node.links;
+    for (var i = 0; i < links.length; i++) {
+      var targetGroup = nodeElementsMap.get(links[i]).group;
+      if (!targetGroup.classList.has('seen')) {
+        nodeGroup.classList.remove('unseen');
+        nodeGroup.classList.add('glimpsed');
+      }
+    }
   }
 }
 
@@ -92,27 +211,25 @@ function spoilNodes() {
 }
 
 function resetNodes() {
-  seenNodes.clear();
-  for (var i = 0; i < layout.nodes.length; i++) {
-    nodeLines.get(layout.nodes[i].id).hidden = true;
+  function setGroupUnseen(nodeElements) {
+    var nodeGroup = nodeElements.nodeGroup;
+    nodeGroup.classList.remove('seen');
+    nodeGroup.classList.remove('glimpsed');
+    nodeGroup.classList.add('unseen');
   }
+  seenNodes.clear();
+  nodeElementsMap.forEach(setGroupUnseen);
+
+  // since we can't know how we got to the current node,
+  // and not showing parents would leave siblings etc. inaccessible on the map,
+  // restart the clickventure
   goToNode(layout.start);
+
   // TODO: persist reset
 }
 
 document.getElementById('spoil').addEventListener('click', spoilNodes);
 document.getElementById('reset').addEventListener('click', resetNodes);
-
-function setHoveredLink(id) {
-  var activeNodeLine = nodeLines.get(activeNode);
-  activeNodeLine.textContent = activeNodeLine.textContent.replace(
-    new RegExp(id+'(?:, |$)'), '>$&');
-}
-
-function unsetHoveredLink() {
-  var activeNodeLine = nodeLines.get(activeNode);
-  activeNodeLine.textContent = activeNodeLine.textContent.replace(/>/,'');
-}
 
 chrome.runtime.onMessage.addListener(function onMessageCallback(msg, sender) {
   if (msg.type == 'hover') {

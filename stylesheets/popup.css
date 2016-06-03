@@ -5,3 +5,44 @@
 button {
   flex: 1;
 }
+
+.node circle {
+  stroke-width: 2px;
+}
+
+.node text {
+  fill: black;
+}
+
+.link {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.5px;
+  opacity: 0.4;
+  marker-end: url(#end-arrow);
+}
+.hovered.link {
+  opacity: 1;
+}
+
+.unseen, .glimpsed .node-links {
+  visibility: hidden;
+}
+
+.glimpsed .node circle {
+  fill: #ccc;
+  stroke: #888;
+}
+
+.seen .node circle {
+  fill: #fc0;
+  stroke: #a80;
+}
+
+.seen.ending .node circle {
+  fill: #ccc;
+}
+
+.seen.active .node circle {
+  stroke: #ca0;
+}
