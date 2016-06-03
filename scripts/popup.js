@@ -152,7 +152,7 @@ function createNodeLinks(iSource) {
 var d3container = d3.select(mapContainer);
 function zoomed() {
   d3container.attr("transform",
-    "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+    "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
 }
 var zoom = d3.behavior.zoom().on("zoom", zoomed);
 d3.select(mapSvg).call(zoom);
@@ -189,7 +189,7 @@ function populateLayout(layoutObj) {
 
   var activeGraphNode = nodeElementsMap.get(layout.active).graphNode;
 
-  zoom.translate(activeGraphNode.x, activeGraphNode.y);
+  zoom.translate([activeGraphNode.x, activeGraphNode.y]);
 
   d3cola.on("tick", function () {
     mapLinks.attr('d', function (d) {
