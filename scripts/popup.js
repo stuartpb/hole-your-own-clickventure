@@ -184,7 +184,9 @@ function populateLayout(layoutObj) {
           + " " + d[2].x + "," + d[2].y;
     });
 
-    mapNodes.attr("transform",function(d){"translate("+d.x+','+d.y+")"});
+    mapNodes.attr("transform",function (d) {
+      return "translate(" + d.x + ',' + d.y + ")";
+    });
   });
 }
 
