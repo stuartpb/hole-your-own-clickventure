@@ -99,6 +99,11 @@ var teNodeCircle = cre.svg('circle', {
 var teNodeLabel = cre.svg('text');
 var teNodeLink = cre.svg('path.link');
 
+function newGraphLayoutNode() {
+  return graphLayoutNodes[graphLayoutNodes.length] =
+    {height: nodeRadius, width: nodeRadius};
+}
+
 function createNodeElements(i) {
   var node = layout.nodes[i];
   var nodeId = node.id;
@@ -122,7 +127,7 @@ function createNodeElements(i) {
 
   return {
     node: node,
-    graphNode: graphLayoutNodes[graphLayoutNodes.length] = {},
+    graphNode: newGraphLayoutNode(),
     group: nodeGroup,
     marker: nodeMarker,
     linkGroup: nodeLinkGroup,
@@ -139,7 +144,7 @@ function createNodeLinks(iSource) {
     var iTarget = nodeElementsMap.get(links[i]).index;
     var bilink = bilinks[bilinks.length] = [
       graphLayoutNodes[iSource],
-      graphLayoutNodes[graphLayoutNodes.length] = {},
+      newGraphLayoutNode(),
       graphLayoutNodes[iTarget]];
     graphLinks.push(
       {source: bilink[0], target: bilink[1]},
