@@ -18,7 +18,7 @@ function cre(base, opts, children) {
     elem = base.cloneNode(!children);
   } else if (typeof base == 'string') {
     var tagName;
-    var words = base.match(/(^|[\.\#])[^\.\#]*/g);
+    var words = base.match(/([.#]|^)[^.#]+/g);
     i = 0;
     if (words[0][0] == '.' || words[0][0] == '#') {
       // default to 'div', Jade-style
@@ -116,7 +116,7 @@ function cre(base, opts, children) {
   }
 
   if (classList.length > 0) {
-    elem.className = classList.join(' ');
+    elem.setAttribute('class', classList.join(' '));
   }
 
   return elem;
@@ -145,7 +145,7 @@ cre.svg = function elementSvg(base, opts, children) {
   opts = opts || {};
   opts.namespaceURI = 'http://www.w3.org/2000/svg';
 
-  cre(base, opts, children);
+  return cre(base, opts, children);
 };
 
 cre.text = document.createTextNode;
