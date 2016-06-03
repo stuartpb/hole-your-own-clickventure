@@ -16,6 +16,8 @@ var bilinks = [];
 var nodeMarkerList = [];
 // list of link path elements for d3
 var nodeLinkList = [];
+// list of node element groups for appending
+var nodeGroupList = [];
 
 var seenNodes = new Set();
 
@@ -111,6 +113,7 @@ function createNodeElements(i) {
   });
 
   nodeMarkerList[nodeMarkerList.length] = nodeMarker;
+  nodeGroupList[nodeGroupList.length] = nodeGroup;
 
   return {
     node: node,
@@ -156,8 +159,8 @@ function populateLayout(layoutObj) {
 
   // set up links and append to tree
   for (var i = 0; i < layout.nodes.length; i++) {
-    createNodeLinks(layout.nodes[i]);
-    clickventureMap.appendChild(nodeElementsMap.get(layout.nodes[i].id));
+    createNodeLinks(i);
+    clickventureMap.appendChild(nodeGroupList[i]);
   }
 
   // Initialize activeNode
