@@ -199,7 +199,7 @@ function markNodeAsSeen(id) {
     var links = nodeElements.node.links;
     for (var i = 0; i < links.length; i++) {
       var targetGroup = nodeElementsMap.get(links[i]).group;
-      if (!targetGroup.classList.has('seen')) {
+      if (!targetGroup.classList.contains('seen')) {
         nodeGroup.classList.remove('unseen');
         nodeGroup.classList.add('glimpsed');
       }
