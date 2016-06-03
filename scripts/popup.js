@@ -179,8 +179,8 @@ function markNodeAsSeen(id) {
     for (var i = 0; i < links.length; i++) {
       var targetGroup = nodeElementsMap.get(links[i]).group;
       if (!targetGroup.classList.contains('seen')) {
-        nodeGroup.classList.remove('unseen');
-        nodeGroup.classList.add('glimpsed');
+        targetGroup.classList.remove('unseen');
+        targetGroup.classList.add('glimpsed');
       }
     }
   }
