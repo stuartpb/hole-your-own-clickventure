@@ -110,7 +110,8 @@ function createNodeElements(i) {
   var nodeLinkGroup = cre(teNodeLinkGroup);
   var nodeGroup = cre(teNodeGroup, [nodeMarker, nodeLinkGroup]);
 
-  nodeGroup.classList.add(seenNodes.has(node.id) ? 'seen' : 'unseen');
+  // Initialize as unseen (seen nodes will be marked in next step)
+  nodeGroup.classList.add('unseen');
 
   nodeMarker.addEventListener('click', function (evt) {
     goToNode(nodeId);
@@ -159,6 +160,27 @@ function zoomed() {
 var zoom = d3.behavior.zoom().on("zoom", zoomed);
 d3.select(mapSvg).call(zoom);
 
+function markNodeAsSeen(id) {
+  seenNodes.add(id);
+  if (layout) {
+    var nodeElements = nodeElementsMap.get(id);
+    var nodeGroup = nodeElements.group;
+    nodeGroup.classList.remove('unseen');
+    nodeGroup.classList.remove('glimpsed');
+    nodeGroup.classList.add('seen');
+
+    // mark all targets as at least glimpsed
+    var links = nodeElements.node.links;
+    for (var i = 0; i < links.length; i++) {
+      var targetGroup = nodeElementsMap.get(links[i]).group;
+      if (!targetGroup.classList.contains('seen')) {
+        nodeGroup.classList.remove('unseen');
+        nodeGroup.classList.add('glimpsed');
+      }
+    }
+  }
+}
+
 function populateLayout(layoutObj) {
   // save incoming layout
   layout = layoutObj;
@@ -167,6 +189,9 @@ function populateLayout(layoutObj) {
   for (var i = 0; i < layout.nodes.length; i++) {
     nodeElementsMap.set(layout.nodes[i].id, createNodeElements(i));
   }
+
+  // set seen / glimpsed states
+  seenNodes.forEach(markNodeAsSeen);
 
   // slice nodes to plot for d3 binding
   graphPlottedNodes = graphLayoutNodes.slice();
@@ -206,27 +231,6 @@ function populateLayout(layoutObj) {
       return "translate(" + d.x + ',' + d.y + ")";
     });
   });
-}
-
-function markNodeAsSeen(id) {
-  seenNodes.add(id);
-  if (layout) {
-    var nodeElements = nodeElementsMap.get(id);
-    var nodeGroup = nodeElements.group;
-    nodeGroup.classList.remove('unseen');
-    nodeGroup.classList.remove('glimpsed');
-    nodeGroup.classList.add('seen');
-
-    // mark all targets as at least glimpsed
-    var links = nodeElements.node.links;
-    for (var i = 0; i < links.length; i++) {
-      var targetGroup = nodeElementsMap.get(links[i]).group;
-      if (!targetGroup.classList.contains('seen')) {
-        nodeGroup.classList.remove('unseen');
-        nodeGroup.classList.add('glimpsed');
-      }
-    }
-  }
 }
 
 function spoilNodes() {
