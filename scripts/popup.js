@@ -147,6 +147,9 @@ function createNodeLinks(iSource) {
   }
 }
 
+var zoom = d3.behavior.zoom();
+d3.select(clickventureMap).call(zoom);
+
 function populateLayout(layoutObj) {
   // save incoming layout
   layout = layoutObj;
@@ -176,6 +179,10 @@ function populateLayout(layoutObj) {
   var d3cola = cola.d3adaptor();
   d3cola.nodes(graphLayoutNodes).links(graphLinks)
     .flowLayout('x', 20).start(10,20,20);
+
+  var activeGraphNode = nodeElementsMap.get(layout.active).graphNode;
+
+  zoom.translate(activeGraphNode.x, activeGraphNode.y);
 
   d3cola.on("tick", function () {
     mapLinks.attr('d', function (d) {
