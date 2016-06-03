@@ -212,7 +212,7 @@ function populateLayout(layoutObj) {
 
   var d3cola = cola.d3adaptor();
   d3cola.nodes(graphLayoutNodes).links(graphLinks)
-    .flowLayout('x', 20).start(10,20,20);
+    .avoidOverlaps(true).flowLayout('x', 20).start(10,20,20);
 
   var activeGraphNode = nodeElementsMap.get(layout.active).graphNode;
 
