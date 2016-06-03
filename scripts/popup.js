@@ -132,11 +132,13 @@ function createNodeLinks(iSource) {
   var links = node.links;
   for (var i = 0; i < links.length; i++) {
     var iTarget = nodeElementsMap.get(links[i]).index;
-    var bilink = [graphLayoutNodes[iSource], {}, graphLayoutNodes[iTarget]];
+    var bilink = bilinks[bilinks.length] = [
+      graphLayoutNodes[iSource],
+      graphLayoutNodes[graphLayoutNodes.length] = {},
+      graphLayoutNodes[iTarget]];
     graphLinks.push(
       {source: bilink[0], target: bilink[1]},
       {source: bilink[1], target: bilink[2]});
-    bilinks[bilinks.length] = bilink;
     var linkPath = cre(teNodeLink);
     var nodeElements = nodeElementsMap.get(node.id);
     nodeElements.linkGroup.appendChild(linkPath);
