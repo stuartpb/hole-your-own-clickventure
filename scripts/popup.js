@@ -218,7 +218,7 @@ function populateLayout(layoutObj) {
 
   zoom.translate([mapCenterX - activeGraphNode.x,
     mapCenterY - activeGraphNode.y]);
-  zoom.event(mapSvg);
+  zoom.event(d3container);
 
   d3cola.on("tick", function () {
     mapLinks.attr('d', function (d) {
