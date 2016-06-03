@@ -23,6 +23,8 @@ var seenNodes = new Set();
 
 // this is a "map" in the sense of a navigational aid
 var mapSvg = document.getElementById('map');
+var mapCenterX = +mapSvg.width/2;
+var mapCenterY = +mapSvg.height/2;
 var mapContainer = cre.svg('g');
 mapSvg.appendChild(mapContainer);
 // this is a "map" in the sense of a data structure
@@ -189,7 +191,9 @@ function populateLayout(layoutObj) {
 
   var activeGraphNode = nodeElementsMap.get(layout.active).graphNode;
 
-  zoom.translate([activeGraphNode.x, activeGraphNode.y]);
+  zoom.translate([mapCenterX - activeGraphNode.x,
+    mapCenterY - activeGraphNode.y]);
+  zoom.event(mapSvg);
 
   d3cola.on("tick", function () {
     mapLinks.attr('d', function (d) {
