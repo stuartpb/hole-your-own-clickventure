@@ -22,7 +22,9 @@ var nodeGroupList = [];
 var seenNodes = new Set();
 
 // this is a "map" in the sense of a navigational aid
-var clickventureMap = document.getElementById('map');
+var mapSvg = document.getElementById('map');
+var mapContainer = cre.svg('g');
+mapSvg.appendChild(mapContainer);
 // this is a "map" in the sense of a data structure
 var nodeElementsMap = new Map();
 
@@ -147,8 +149,13 @@ function createNodeLinks(iSource) {
   }
 }
 
-var zoom = d3.behavior.zoom();
-d3.select(clickventureMap).call(zoom);
+var d3container = d3.select(mapContainer);
+function zoomed() {
+  d3container.attr("transform",
+    "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+}
+var zoom = d3.behavior.zoom().on("zoom", zoomed);
+d3.select(mapSvg).call(zoom);
 
 function populateLayout(layoutObj) {
   // save incoming layout
@@ -165,7 +172,7 @@ function populateLayout(layoutObj) {
   // set up links and append to tree
   for (var i = 0; i < layout.nodes.length; i++) {
     createNodeLinks(i);
-    clickventureMap.appendChild(nodeGroupList[i]);
+    mapContainer.appendChild(nodeGroupList[i]);
   }
 
   // Initialize activeNode
