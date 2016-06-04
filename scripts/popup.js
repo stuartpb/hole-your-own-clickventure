@@ -39,7 +39,6 @@ function setActiveNode(id) {
   markNodeAsSeen(id);
   activeNode = id;
 }
-
 function setHoveredLink(id) {
   return nodeElementsMap.get(activeNode)
     .linkMap.get(id).classList.add('hovered');
@@ -88,7 +87,6 @@ function goToNode(id) {
 }
 
 var nodeRadius = 10;
-var nodeBounds = 30;
 
 var teNodeGroup = cre.svg('g.node-group');
 var teNodeLinkGroup = cre.svg('g.node-links');
@@ -101,8 +99,7 @@ var teNodeLabel = cre.svg('text');
 var teNodeLink = cre.svg('path.link');
 
 function newGraphLayoutNode() {
-  return graphLayoutNodes[graphLayoutNodes.length] =
-    {height: nodeBounds, width: nodeBounds};
+  return graphLayoutNodes[graphLayoutNodes.length] = {};
 }
 
 function createNodeElements(i) {
@@ -218,7 +215,7 @@ function populateLayout(layoutObj) {
 
   var d3cola = cola.d3adaptor();
   d3cola.nodes(graphLayoutNodes).links(graphLinks)
-    .avoidOverlaps(true).flowLayout('x', 20).start(10,20,20);
+    .flowLayout('x', 20).start(10,20,20);
 
   var activeGraphNode = nodeElementsMap.get(layout.active).graphNode;
 
