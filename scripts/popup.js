@@ -213,9 +213,10 @@ function populateLayout(layoutObj) {
   var mapNodes = d3.selectAll(nodeMarkerList).data(graphPlottedNodes);
   var mapLinks = d3.selectAll(nodeLinkList).data(bilinks);
 
-  var d3cola = cola.d3adaptor();
-  d3cola.nodes(graphLayoutNodes).links(graphLinks)
-    .flowLayout('x', 20).start(10,20,20);
+  var force = d3.layout.force()
+    .nodes(graphLayoutNodes)
+    .links(graphLinks)
+    .start();
 
   var activeGraphNode = nodeElementsMap.get(layout.active).graphNode;
 
@@ -223,7 +224,7 @@ function populateLayout(layoutObj) {
     mapCenterY - activeGraphNode.y]);
   zoom.event(d3container);
 
-  d3cola.on("tick", function () {
+  force.on("tick", function () {
     mapLinks.attr('d', function (d) {
       return "M" + d[0].x + "," + d[0].y
           + "S" + d[1].x + "," + d[1].y
