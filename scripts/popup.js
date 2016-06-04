@@ -245,7 +245,7 @@ function spoilNodes() {
 
 function resetNodes() {
   function setGroupUnseen(nodeElements) {
-    var nodeGroup = nodeElements.nodeGroup;
+    var nodeGroup = nodeElements.group;
     nodeGroup.classList.remove('seen');
     nodeGroup.classList.remove('glimpsed');
     nodeGroup.classList.add('unseen');
