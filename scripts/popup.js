@@ -1,4 +1,4 @@
-/* global chrome clickventureUrlToName cre d3 cola */
+/* global chrome clickventureUrlToName cre d3 */
 
 var layout;
 
@@ -217,12 +217,6 @@ function populateLayout(layoutObj) {
     .nodes(graphLayoutNodes)
     .links(graphLinks)
     .start();
-
-  var activeGraphNode = nodeElementsMap.get(layout.active).graphNode;
-
-  zoom.translate([mapCenterX - activeGraphNode.x,
-    mapCenterY - activeGraphNode.y]);
-  zoom.event(d3container);
 
   force.on("tick", function () {
     mapLinks.attr('d', function (d) {
