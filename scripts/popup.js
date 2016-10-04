@@ -205,7 +205,11 @@ function populateLayout(layoutObj) {
     elements: incomingLayoutToCytoscapeElements(layout),
     style: cyStyle,
     layout: {
-      name: 'cose'
+      name: 'cose',
+      ready: function() {
+        // fit to visualize immediate decisions
+        cy.fit(cy.getElementById(activeNode).outgoers(), 50);
+      }
     }
   });
 
@@ -221,9 +225,6 @@ function populateLayout(layoutObj) {
   // Initialize activeNode
   activeNode = layout.start;
   setActiveNode(layout.active);
-
-  // fit to visualize immediate decisions
-  cy.fit(cy.getElementById(activeNode).outgoers(), 50);
 }
 
 function spoilNodes() {
