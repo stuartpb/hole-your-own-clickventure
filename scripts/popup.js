@@ -199,9 +199,7 @@ function populateLayout(layoutObj) {
   // save incoming layout
   layout = layoutObj;
 
-  // set seen / glimpsed states
-  seenNodes.forEach(markNodeAsSeen);
-
+  // initialize decision graph
   cy = cytoscape({
     container: mapContainer,
     elements: incomingLayoutToCytoscapeElements(layout),
@@ -210,6 +208,9 @@ function populateLayout(layoutObj) {
       name: 'cose'
     }
   });
+
+  // set seen / glimpsed states
+  seenNodes.forEach(markNodeAsSeen);
 
   // hook up UI
   cy.nodes().on('click', function (evt) {
