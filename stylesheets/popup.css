@@ -6,46 +6,7 @@ button {
   flex: 1;
 }
 
-.node circle {
-  stroke-width: 4px;
-}
-
-.node text {
-  fill: black;
-  text-anchor: middle;
-  baseline-shift: -35%;
-  font-size: 10px;
-}
-
-.link {
-  fill: none;
-  stroke: #000;
-  stroke-width: 2px;
-  opacity: 0.4;
-  marker-end: url(#end-arrow);
-}
-.hovered.link {
-  opacity: 1;
-}
-
-.unseen, .glimpsed .node-links {
-  visibility: hidden;
-}
-
-.glimpsed .node circle {
-  fill: #ccc;
-  stroke: #888;
-}
-
-.seen .node circle {
-  fill: #fc0;
-  stroke: #a80;
-}
-
-.seen.ending .node circle {
-  fill: #ccc;
-}
-
-.seen.active .node circle {
-  stroke: #ca0;
+#map {
+  width: 400px;
+  height: 400px;
 }

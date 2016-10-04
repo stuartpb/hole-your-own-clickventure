@@ -1,55 +1,132 @@
-/* global chrome clickventureUrlToName cre d3 */
+/* global chrome clickventureUrlToName cytoscape */
 
 var layout;
-
-// graph info for cola layout
-var graphLinks = [];
-// list of nodes for cola layout
-var graphLayoutNodes = [];
-// list of nodes for d3 binding
-// (the list of layout nodes, without the intermediates)
-var graphPlottedNodes;
-// array of references for plotting link paths (d3 binding)
-var bilinks = [];
-
-// list of node marker elements for d3
-var nodeMarkerList = [];
-// list of link path elements for d3
-var nodeLinkList = [];
-// list of node element groups for appending
-var nodeGroupList = [];
 
 var seenNodes = new Set();
 
 // this is a "map" in the sense of a navigational aid
-var mapSvg = document.getElementById('map');
-var mapCenterX = +mapSvg.width/2;
-var mapCenterY = +mapSvg.height/2;
-var mapContainer = cre.svg('g');
-mapSvg.appendChild(mapContainer);
-// this is a "map" in the sense of a data structure
-var nodeElementsMap = new Map();
+var mapContainer = document.getElementById('map');
+var cy;
+
+var cyStyle = [
+  {
+    selector: 'node',
+    style: {
+      'border-width': '4px',
+      'label': 'data(id)',
+      'color': 'black',
+      'font-size': '10px',
+      'height': '10px',
+      'width': '10px',
+      'shape': 'ellipse'
+    }
+  },
+  {
+    selector: 'edge',
+    style: {
+      'line-color': 'black',
+      'width': '2px',
+      'opacity': '0.4',
+      'target-arrow-shape': 'triangle'
+    }
+  },
+  {
+    selector: 'edge.hovered',
+    style: {
+      'opacity': '1'
+    }
+  },
+  {
+    selector: '.unseen, edge.glimpsed',
+    style: {
+      'visibility': 'hidden'
+    }
+  },
+  {
+    selector: 'node.glimpsed',
+    style: {
+      'background-color': '#ccc',
+      'border-color': '#888'
+    }
+  },
+  {
+    selector: 'node.seen',
+    style: {
+      'background-color': '#fc0',
+      'border-color': '#a80'
+    }
+  },
+  {
+    selector: 'node.seen.ending',
+    style: {
+      'background-color': '#ccc',
+    }
+  },
+  {
+    selector: 'node.seen.active',
+    style: {
+      'border-color': '#ca0',
+    }
+  }
+];
+
+function incomingLayoutToCytoscapeElements(incoming) {
+  var iNodes = incoming.nodes;
+  var els = [];
+  for (var i = 0; i < iNodes.length; i++) {
+    var iNode = iNodes[i];
+    var links = iNode.links;
+    var classes = [incoming.start == iNode.id ? 'start seen' :
+      seenNodes.has(iNodes.seen) ? 'seen' : 'unseen'];
+    if (incoming.active == iNode.id) {
+      classes[classes.length] = 'active';
+    }
+    if (iNode.finish) {
+      classes[classes.length] = 'finish';
+    }
+    classes = classes.join(' ');
+    els[els.length] = {
+      group: 'nodes',
+      data: {
+        id: iNode.id,
+        name: iNode.name,
+      },
+      classes: classes
+    };
+    for (var j = 0; j < links.length; j++) {
+      els[els.length] = {
+        group: 'edges',
+        data: {
+          source: iNode.id,
+          target: links[j],
+        },
+        classes: classes
+      };
+    }
+  }
+  return els;
+}
 
 var activeNode;
 function setActiveNode(id) {
   // deactivate old active node
-  nodeElementsMap.get(activeNode).group.classList.remove('active');
+  cy.getElementById(activeNode).removeClass('active');
+  // TODO: remove from edges
   // activate new active node
-  nodeElementsMap.get(id).group.classList.add('active');
+  cy.getElementById(id).addClass('active');
   markNodeAsSeen(id);
   activeNode = id;
 }
 function setHoveredLink(id) {
-  return nodeElementsMap.get(activeNode)
-    .linkMap.get(id).classList.add('hovered');
+  return cy.getElementById(activeNode)
+    .edgesTo(cy.getElementById(id))
+    .addClass('hovered');
 }
 
 function unsetHoveredLink() {
-  var hovered = nodeElementsMap.get(activeNode)
-    .linkGroup.getElementsByClassName('hovered');
-  for (var i = 0; i < hovered.length; i++) {
-    hovered[i].classList.remove('hovered');
-  }
+  return cy.getElementById(activeNode)
+    .connectedEdges('.hovered')
+    .removeClass('hovered');
 }
 
 function getCurrentUrl(cb) {
@@ -86,101 +163,30 @@ function goToNode(id) {
   });
 }
 
-var nodeRadius = 10;
-
-var teNodeGroup = cre.svg('g.node-group');
-var teNodeLinkGroup = cre.svg('g.node-links');
-var teNodeMarker = cre.svg('g.node');
-var teNodeTitleElement = cre.svg('title');
-var teNodeCircle = cre.svg('circle', {
-  attributes: [{name: 'r', value: nodeRadius}]
-});
-var teNodeLabel = cre.svg('text');
-var teNodeLink = cre.svg('path.link');
-
-function newGraphLayoutNode() {
-  return graphLayoutNodes[graphLayoutNodes.length] = {};
+function nodeAndEdges(node) {
+  var coll = cy.collection(node);
+  return coll.add(node.outgoers('edge'));
 }
 
-function createNodeElements(i) {
-  var node = layout.nodes[i];
-  var nodeId = node.id;
-  var nodeMarker = cre(teNodeMarker, [
-    cre(teNodeTitleElement, [node.name]),
-    cre(teNodeCircle),
-    cre(teNodeLabel, [nodeId])
-  ]);
-  var nodeLinkGroup = cre(teNodeLinkGroup);
-  var nodeGroup = cre(teNodeGroup, [nodeMarker, nodeLinkGroup]);
-
-  // Initialize as unseen (seen nodes will be marked in next step)
-  nodeGroup.classList.add('unseen');
-
-  nodeMarker.addEventListener('click', function (evt) {
-    goToNode(nodeId);
-  });
-
-  nodeMarkerList[nodeMarkerList.length] = nodeMarker;
-  nodeGroupList[nodeGroupList.length] = nodeGroup;
-
-  return {
-    node: node,
-    graphNode: newGraphLayoutNode(),
-    group: nodeGroup,
-    marker: nodeMarker,
-    linkGroup: nodeLinkGroup,
-    linkMap: new Map(),
-    index: i
-  };
+function nodeTargets(node) {
+  return node.outgoers('node');
 }
 
-function createNodeLinks(iSource) {
-  // create node link and append it to
-  var node = layout.nodes[iSource];
-  var links = node.links;
-  for (var i = 0; i < links.length; i++) {
-    var iTarget = nodeElementsMap.get(links[i]).index;
-    var bilink = bilinks[bilinks.length] = [
-      graphLayoutNodes[iSource],
-      newGraphLayoutNode(),
-      graphLayoutNodes[iTarget]];
-    graphLinks.push(
-      {source: bilink[0], target: bilink[1]},
-      {source: bilink[1], target: bilink[2]});
-    var linkPath = cre(teNodeLink);
-    var nodeElements = nodeElementsMap.get(node.id);
-    nodeElements.linkGroup.appendChild(linkPath);
-    nodeElements.linkMap.set(links[i], linkPath);
-    nodeLinkList[nodeLinkList.length] = linkPath;
+function upgradeToGlimpsed(node) {
+  if (!node.hasClass('seen')) {
+    node.removeClass('unseen').addClass('glimpsed');
   }
 }
-
-var d3container = d3.select(mapContainer);
-function zoomed() {
-  d3container.attr("transform",
-    "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
-}
-var zoom = d3.behavior.zoom().on("zoom", zoomed);
-d3.select(mapSvg).call(zoom);
 
 function markNodeAsSeen(id) {
   seenNodes.add(id);
   if (layout) {
-    var nodeElements = nodeElementsMap.get(id);
-    var nodeGroup = nodeElements.group;
-    nodeGroup.classList.remove('unseen');
-    nodeGroup.classList.remove('glimpsed');
-    nodeGroup.classList.add('seen');
+    var node = cy.getElementById(id);
+    nodeAndEdges(cy.getElementById(id))
+      .removeClass('unseen glimpsed').addClass('seen');
 
     // mark all targets as at least glimpsed
-    var links = nodeElements.node.links;
-    for (var i = 0; i < links.length; i++) {
-      var targetGroup = nodeElementsMap.get(links[i]).group;
-      if (!targetGroup.classList.contains('seen')) {
-        targetGroup.classList.remove('unseen');
-        targetGroup.classList.add('glimpsed');
-      }
-    }
+    nodeTargets(node).forEach(upgradeToGlimpsed);
   }
 }
 
@@ -188,47 +194,27 @@ function populateLayout(layoutObj) {
   // save incoming layout
   layout = layoutObj;
 
-  // initialize node elements
-  for (var i = 0; i < layout.nodes.length; i++) {
-    nodeElementsMap.set(layout.nodes[i].id, createNodeElements(i));
-  }
-
   // set seen / glimpsed states
-  seenNodes.forEach(markNodeAsSeen);
+  //seenNodes.forEach(markNodeAsSeen);
 
-  // slice nodes to plot for d3 binding
-  graphPlottedNodes = graphLayoutNodes.slice();
+  cy = cytoscape({
+    container: mapContainer,
+    elements: incomingLayoutToCytoscapeElements(layout),
+    style: cyStyle,
+    layout: {
+      name: 'cose'
+    }
+  });
 
-  // set up links and append to tree
-  for (var i = 0; i < layout.nodes.length; i++) {
-    createNodeLinks(i);
-    mapContainer.appendChild(nodeGroupList[i]);
-  }
+  // hook up UI
+  cy.nodes().on('click', function (evt) {
+    // TODO: ignore if node is invisible?
+    goToNode(evt.cyTarget.id());
+  });
 
   // Initialize activeNode
   activeNode = layout.start;
   setActiveNode(layout.active);
-
-  // bind data for d3
-  var mapNodes = d3.selectAll(nodeMarkerList).data(graphPlottedNodes);
-  var mapLinks = d3.selectAll(nodeLinkList).data(bilinks);
-
-  var force = d3.layout.force()
-    .nodes(graphLayoutNodes)
-    .links(graphLinks)
-    .start();
-
-  force.on("tick", function () {
-    mapLinks.attr('d', function (d) {
-      return "M" + d[0].x + "," + d[0].y
-          + "S" + d[1].x + "," + d[1].y
-          + " " + d[2].x + "," + d[2].y;
-    });
-
-    mapNodes.attr("transform",function (d) {
-      return "translate(" + d.x + ',' + d.y + ")";
-    });
-  });
 }
 
 function spoilNodes() {
@@ -238,14 +224,15 @@ function spoilNodes() {
 }
 
 function resetNodes() {
-  function setGroupUnseen(nodeElements) {
-    var nodeGroup = nodeElements.group;
-    nodeGroup.classList.remove('seen');
-    nodeGroup.classList.remove('glimpsed');
-    nodeGroup.classList.add('unseen');
-  }
   seenNodes.clear();
-  nodeElementsMap.forEach(setGroupUnseen);
+  var eles = cy.elements();
+  for (var i = 0; i < eles.length; i++) {
+    var el = eles[i];
+    // we just blindly set everything unseen
+    // since the seen state will get fixed
+    // after we go back to start
+    el.removeClass('seen glimpsed').addClass('unseen');
+  }
 
   // since we can't know how we got to the current node,
   // and not showing parents would leave siblings etc. inaccessible on the map,
