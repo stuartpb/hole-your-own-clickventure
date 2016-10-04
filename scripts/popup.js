@@ -76,8 +76,10 @@ function incomingLayoutToCytoscapeElements(incoming) {
   for (var i = 0; i < iNodes.length; i++) {
     var iNode = iNodes[i];
     var links = iNode.links;
-    var classes = [incoming.start == iNode.id ? 'start seen' :
-      seenNodes.has(iNode.id) ? 'seen' : 'unseen'];
+    // everything gets initialized as unseen, since the individual
+    // 'mark as seen' step gets run on all seen nodes anyway after this
+    // (to mark all corresponding "glimpsed" nodes).
+    var classes = [incoming.start == iNode.id ? 'start seen' : 'unseen'];
     if (incoming.active == iNode.id) {
       classes[classes.length] = 'active';
     }
@@ -198,7 +200,7 @@ function populateLayout(layoutObj) {
   layout = layoutObj;
 
   // set seen / glimpsed states
-  //seenNodes.forEach(markNodeAsSeen);
+  seenNodes.forEach(markNodeAsSeen);
 
   cy = cytoscape({
     container: mapContainer,
