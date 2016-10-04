@@ -60,18 +60,25 @@ var cyStyle = [
     }
   },
   {
-    selector: 'node.seen.ending',
+    selector: 'node.ending',
     style: {
       'background-color': '#ccc',
     }
   },
   {
-    selector: 'node.seen.active',
+    selector: 'node.active',
     style: {
       'border-width': '6px',
       'border-style': 'double',
       'height': '25px',
       'width': '25px',
+    }
+  },
+  {
+    selector: 'edge.active',
+    style: {
+      'line-color': '#a80',
+      'target-arrow-color': '#a80'
     }
   }
 ];
@@ -118,13 +125,27 @@ function incomingLayoutToCytoscapeElements(incoming) {
   return els;
 }
 
+function nodeAndEdges(node) {
+  var coll = cy.collection(node);
+  return coll.add(node.outgoers('edge'));
+}
+
+function nodeTargets(node) {
+  return node.outgoers('node');
+}
+
+function nodeAndAllTargets(node) {
+  var coll = cy.collection(node);
+  return coll.add(node.outgoers());
+}
+
 var activeNode;
 function setActiveNode(id) {
   // deactivate old active node
-  cy.getElementById(activeNode).removeClass('active');
+  nodeAndEdges(cy.getElementById(activeNode)).removeClass('active');
   // TODO: remove from edges
   // activate new active node
-  cy.getElementById(id).addClass('active');
+  nodeAndEdges(cy.getElementById(id)).addClass('active');
   markNodeAsSeen(id);
   activeNode = id;
 }
@@ -172,20 +193,6 @@ function goToNode(id) {
       chrome.tabs.reload(null, setActiveNode.bind(null,id));
     });
   });
-}
-
-function nodeAndEdges(node) {
-  var coll = cy.collection(node);
-  return coll.add(node.outgoers('edge'));
-}
-
-function nodeTargets(node) {
-  return node.outgoers('node');
-}
-
-function nodeAndAllTargets(node) {
-  var coll = cy.collection(node);
-  return coll.add(node.outgoers());
 }
 
 function upgradeToGlimpsed(node) {
