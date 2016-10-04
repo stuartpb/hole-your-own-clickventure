@@ -221,6 +221,9 @@ function populateLayout(layoutObj) {
   // Initialize activeNode
   activeNode = layout.start;
   setActiveNode(layout.active);
+
+  // fit to visualize immediate decisions
+  cy.fit(cy.getElementById(activeNode).outgoers());
 }
 
 function spoilNodes() {
