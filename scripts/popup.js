@@ -16,9 +16,10 @@ var cyStyle = [
       'label': 'data(id)',
       'color': 'black',
       'font-size': '10px',
-      'height': '10px',
-      'width': '10px',
-      'shape': 'ellipse'
+      'height': '20px',
+      'width': '20px',
+      'shape': 'ellipse',
+      'text-valign': 'center'
     }
   },
   {
