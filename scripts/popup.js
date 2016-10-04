@@ -139,6 +139,10 @@ function nodeAndAllTargets(node) {
   return coll.add(node.outgoers());
 }
 
+function fitActiveNodeDecisions(node) {
+  cy.fit(nodeAndAllTargets(cy.getElementById(activeNode)), 50);
+}
+
 var activeNode;
 function setActiveNode(id) {
   // deactivate old active node
@@ -148,6 +152,7 @@ function setActiveNode(id) {
   nodeAndEdges(cy.getElementById(id)).addClass('active');
   markNodeAsSeen(id);
   activeNode = id;
+  fitActiveNodeDecisions();
 }
 function setHoveredLink(id) {
   return cy.getElementById(activeNode)
@@ -224,10 +229,7 @@ function populateLayout(layoutObj) {
     style: cyStyle,
     layout: {
       name: 'cose',
-      ready: function() {
-        // fit to visualize immediate decisions
-        cy.fit(nodeAndAllTargets(cy.getElementById(activeNode)), 50);
-      },
+      ready: fitActiveNodeDecisions,
       // disable autofit since we do our own
       fit: false
     }
