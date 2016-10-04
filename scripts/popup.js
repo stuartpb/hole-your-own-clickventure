@@ -210,7 +210,9 @@ function populateLayout(layoutObj) {
       ready: function() {
         // fit to visualize immediate decisions
         cy.fit(cy.getElementById(activeNode).outgoers(), 50);
-      }
+      },
+      // disable autofit since we do our own
+      fit: false
     }
   });
 
