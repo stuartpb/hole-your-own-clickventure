@@ -229,6 +229,7 @@ function populateLayout(layoutObj) {
     style: cyStyle,
     layout: {
       name: 'cose',
+      ready: fitActiveNodeDecisions,
       stop: fitActiveNodeDecisions,
       // disable autofit since we do our own
       fit: false
