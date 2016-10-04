@@ -29,7 +29,8 @@ var cyStyle = [
       'width': '2px',
       'opacity': '0.4',
       'curve-style': 'bezier',
-      'target-arrow-shape': 'triangle'
+      'target-arrow-shape': 'triangle',
+      'target-arrow-color': 'black'
     }
   },
   {
