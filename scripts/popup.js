@@ -77,7 +77,7 @@ function incomingLayoutToCytoscapeElements(incoming) {
     var iNode = iNodes[i];
     var links = iNode.links;
     var classes = [incoming.start == iNode.id ? 'start seen' :
-      seenNodes.has(iNodes.seen) ? 'seen' : 'unseen'];
+      seenNodes.has(iNode.id) ? 'seen' : 'unseen'];
     if (incoming.active == iNode.id) {
       classes[classes.length] = 'active';
     }
@@ -185,7 +185,7 @@ function markNodeAsSeen(id) {
   seenNodes.add(id);
   if (layout) {
     var node = cy.getElementById(id);
-    nodeAndEdges(cy.getElementById(id))
+    nodeAndEdges(node)
       .removeClass('unseen glimpsed').addClass('seen');
 
     // mark all targets as at least glimpsed
