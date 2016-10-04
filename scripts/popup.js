@@ -70,7 +70,7 @@ var cyStyle = [
     style: {
       'border-style': 'double',
       'height': '25px',
-      'width': '205px',
+      'width': '25px',
     }
   }
 ];
@@ -182,6 +182,11 @@ function nodeTargets(node) {
   return node.outgoers('node');
 }
 
+function nodeAndAllTargets(node) {
+  var coll = cy.collection(node);
+  return coll.add(node.outgoers());
+}
+
 function upgradeToGlimpsed(node) {
   if (!node.hasClass('seen')) {
     node.removeClass('unseen').addClass('glimpsed');
@@ -213,7 +218,7 @@ function populateLayout(layoutObj) {
       name: 'cose',
       ready: function() {
         // fit to visualize immediate decisions
-        cy.fit(cy.getElementById(activeNode).outgoers(), 50);
+        cy.fit(nodeAndAllTargets(cy.getElementById(activeNode)), 50);
       },
       // disable autofit since we do our own
       fit: false
