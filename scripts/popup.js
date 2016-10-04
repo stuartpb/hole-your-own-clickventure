@@ -91,6 +91,9 @@ function incomingLayoutToCytoscapeElements(incoming) {
         id: iNode.id,
         name: iNode.name,
       },
+      position: {
+        x: i, y: 0
+      },
       classes: classes
     };
     for (var j = 0; j < links.length; j++) {
