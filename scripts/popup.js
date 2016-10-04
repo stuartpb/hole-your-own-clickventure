@@ -223,7 +223,7 @@ function populateLayout(layoutObj) {
   setActiveNode(layout.active);
 
   // fit to visualize immediate decisions
-  cy.fit(cy.getElementById(activeNode).outgoers());
+  cy.fit(cy.getElementById(activeNode).outgoers(), 50);
 }
 
 function spoilNodes() {
