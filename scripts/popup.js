@@ -68,7 +68,9 @@ var cyStyle = [
   {
     selector: 'node.seen.active',
     style: {
-      'border-color': '#ca0',
+      'border-style': 'double',
+      'height': '25px',
+      'width': '205px',
     }
   }
 ];
