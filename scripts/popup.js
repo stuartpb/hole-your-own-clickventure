@@ -63,6 +63,14 @@ var cyStyle = [
     selector: 'node.ending',
     style: {
       'background-color': '#ccc',
+      'border-color': '#fe621e'
+    }
+  },
+  {
+    selector: 'edge.ending',
+    style: {
+      'line-color': '#fe621e',
+      'target-arrow-color': '#fe621e'
     }
   },
   {
@@ -97,7 +105,7 @@ function incomingLayoutToCytoscapeElements(incoming) {
       classes[classes.length] = 'active';
     }
     if (iNode.finish) {
-      classes[classes.length] = 'finish';
+      classes[classes.length] = 'ending';
     }
     classes = classes.join(' ');
     els[els.length] = {
