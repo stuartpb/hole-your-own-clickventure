@@ -60,20 +60,6 @@ var cyStyle = [
     }
   },
   {
-    selector: 'node.ending',
-    style: {
-      'background-color': '#ccc',
-      'border-color': '#fe621e'
-    }
-  },
-  {
-    selector: 'edge.ending',
-    style: {
-      'line-color': '#fe621e',
-      'target-arrow-color': '#fe621e'
-    }
-  },
-  {
     selector: 'node.active',
     style: {
       'border-width': '6px',
@@ -87,6 +73,20 @@ var cyStyle = [
     style: {
       'line-color': '#a80',
       'target-arrow-color': '#a80'
+    }
+  },
+  {
+    selector: 'node.ending',
+    style: {
+      'background-color': '#ccc',
+      'border-color': '#fe621e'
+    }
+  },
+  {
+    selector: 'edge.ending',
+    style: {
+      'line-color': '#fe621e',
+      'target-arrow-color': '#fe621e'
     }
   }
 ];
