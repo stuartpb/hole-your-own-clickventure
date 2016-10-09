@@ -71,7 +71,9 @@ var cyStyle = [
   {
     selector: 'node.ending',
     style: {
-      'background-color': '#ccc',
+      'background-color': '#333',
+      'background-opacity': '1',
+      'color': 'white',
       'border-color': '#fe621e'
     }
   },
