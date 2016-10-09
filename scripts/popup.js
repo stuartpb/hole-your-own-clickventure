@@ -50,7 +50,7 @@ var cyStyle = [
     selector: 'node.seen',
     style: {
       'border-color': '#33c5f3',
-      'background-color': 'none'
+      'background-opacity': '0'
     }
   },
   {
