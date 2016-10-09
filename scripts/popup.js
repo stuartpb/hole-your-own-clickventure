@@ -90,7 +90,8 @@ var cyStyle = [
       'border-width': '2px',
       'background-opacity': '0',
       'border-color': '#ccc',
-      'border-style': 'dashed'
+      'border-style': 'dashed',
+      'color': 'black'
     }
   }
 ];
