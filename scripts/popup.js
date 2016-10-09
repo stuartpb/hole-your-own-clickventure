@@ -87,8 +87,10 @@ var cyStyle = [
   {
     selector: 'node.glimpsed',
     style: {
-      'background-color': '#ccc',
-      'border-color': '#888'
+      'border-width': '2px',
+      'background-opacity': '0',
+      'border-color': '#ccc',
+      'border-style': 'dashed'
     }
   }
 ];
