@@ -18,6 +18,7 @@ var cyStyle = [
       'font-size': '10px',
       'height': '20px',
       'width': '20px',
+      'text-margin-y': '2.5px',
       'shape': 'ellipse',
       'text-valign': 'center'
     }
