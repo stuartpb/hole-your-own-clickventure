@@ -71,9 +71,7 @@ var cyStyle = [
   {
     selector: 'edge.active',
     style: {
-      'line-color': '#a80',
-      'target-arrow-color': '#a80',
-      'width': '3px'
+      'width': '4px'
     }
   },
   {
