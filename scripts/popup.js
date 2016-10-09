@@ -46,13 +46,6 @@ var cyStyle = [
     }
   },
   {
-    selector: 'node.glimpsed',
-    style: {
-      'background-color': '#ccc',
-      'border-color': '#888'
-    }
-  },
-  {
     selector: 'node.seen',
     style: {
       'border-color': '#33c5f3'
@@ -85,6 +78,13 @@ var cyStyle = [
     style: {
       'line-color': '#fe621e',
       'target-arrow-color': '#fe621e'
+    }
+  },
+  {
+    selector: 'node.glimpsed',
+    style: {
+      'background-color': '#ccc',
+      'border-color': '#888'
     }
   }
 ];
