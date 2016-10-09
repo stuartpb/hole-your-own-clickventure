@@ -55,8 +55,7 @@ var cyStyle = [
   {
     selector: 'node.seen',
     style: {
-      'background-color': '#fc0',
-      'border-color': '#a80'
+      'border-color': '#33c5f3'
     }
   },
   {
