@@ -50,7 +50,7 @@ var cyStyle = [
     selector: 'node.seen',
     style: {
       'border-color': '#33c5f3',
-      'background-opacity': '0'
+      'background-color': 'white'
     }
   },
   {
@@ -72,7 +72,6 @@ var cyStyle = [
     selector: 'node.ending',
     style: {
       'background-color': '#fe621e',
-      'background-opacity': '1',
       'color': 'white',
       'border-color': '#fe621e'
     }
@@ -88,7 +87,7 @@ var cyStyle = [
     selector: 'node.glimpsed',
     style: {
       'border-width': '2px',
-      'background-opacity': '0',
+      'background-color': 'white',
       'border-color': '#ccc',
       'border-style': 'dashed',
       'color': 'black'
