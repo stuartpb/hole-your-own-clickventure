@@ -39,7 +39,9 @@ function recordSeen(clickventureUrl, nodeId) {
 }
 
 chrome.runtime.onMessage.addListener(function onMessageCallback(msg, sender) {
-  if (msg.type == 'action') {
+  // if the node changes, or when the page is initially loaded
+  if (msg.type == 'action' || msg.type == 'initialization') {
+    // record that the node has been seen
     recordSeen(sender.url, msg.target);
   }
 });

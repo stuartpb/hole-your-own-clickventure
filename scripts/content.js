@@ -20,8 +20,15 @@ function observeClass(className, observer, options) {
 }
 
 function reportNewActiveNode(target) {
-  chrome.runtime.sendMessage(null, {
-    type: 'action', target: target.dataset.nodeId});
+  chrome.runtime.sendMessage(null, {type: 'action', target: target});
+}
+
+// report initial active node, for tracking seen nodes when visiting
+var initialActiveNode =
+  document.getElementsByClassName('clickventure-node-active')[0];
+if (initialActiveNode) {
+  chrome.runtime.sendMessage(null, {type: 'initialization',
+    target: initialActiveNode.dataset.nodeId});
 }
 
 addClassListener('clickventure-node-link', 'mouseenter', function(evt) {
@@ -38,7 +45,7 @@ var activeNodeObserver = new MutationObserver(function(records) {
     var record = records[i];
     if (record.attributeName == 'class') {
       if (record.target.classList.contains('clickventure-node-active')) {
-        reportNewActiveNode(record.target);
+        reportNewActiveNode(record.target.dataset.nodeId);
       }
     }
   }
